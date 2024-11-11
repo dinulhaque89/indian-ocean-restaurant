@@ -30,7 +30,7 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
     <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-4rem)]">
       {/* Left sidebar - Menu Navigation */}
       <Card className="lg:w-1/5 p-4">
-        <div className="mb-4">
+        <div className="mb-4 pt-4">
           <SearchDialog menuItems={menuCategories} />
         </div>
         <ScrollArea className="h-[calc(100vh-12rem)]">

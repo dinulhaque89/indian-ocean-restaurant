@@ -5,8 +5,10 @@ import {
   MenuCategory, 
   MenuItem as MenuItemType, 
   FilterOptions,
-  DietaryType 
-} from '@/types/menuTypes';import { useBasket } from '@/components/BasketContext';
+  DietaryType,
+  MenuItemOption
+} from '@/types/menuTypes';
+import { useBasket } from '@/components/BasketContext';
 import MenuItem from './MenuItem';
 
 
@@ -46,21 +48,21 @@ const MenuItems: React.FC<MenuItemsProps> = ({ category, filters }) => {
 
   const renderMenuItem = (item: MenuItemType) => {
     if (item.options) {
-      // Filter the options based on current filters
       const filteredOptions = item.options.filter(option => matchesFilters(option));
       
-      // Only render if there are matching options
       if (filteredOptions.length === 0) return null;
-
+  
       return (
-        <div key={item.name} className="bg-gray-100 p-4 rounded-lg mb-4">
-          <h3 className="text-lg font-semibold mb-1">{item.name}</h3>
-          {item.description && <p className="text-sm text-gray-600 mb-2">{item.description}</p>}
-          <div className="space-y-2">
+        <div key={item.name} className="bg-white shadow-sm rounded-lg p-5">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.name}</h3>
+          {item.description && (
+            <p className="text-sm text-gray-600 mb-4">{item.description}</p>
+          )}
+          <div className="space-y-3">
             {filteredOptions.map((option, index) => (
               <div 
                 key={index}
-                className="flex justify-between items-center p-2 rounded hover:bg-gray-200 cursor-pointer transition-colors duration-200"
+                className="flex justify-between items-center p-3 rounded-md hover:bg-gray-50 cursor-pointer border border-gray-100"
                 onClick={() => addToBasket({
                   name: `${item.name} - ${option.name}`,
                   price: option.price,
@@ -69,8 +71,8 @@ const MenuItems: React.FC<MenuItemsProps> = ({ category, filters }) => {
                   category: item.category
                 })}
               >
-                <span>{option.name}</span>
-                <span className="font-bold">£{option.price.toFixed(2)}</span>
+                <span className="text-gray-900">{option.name}</span>
+                <span className="font-bold text-gray-900">£{option.price.toFixed(2)}</span>
               </div>
             ))}
           </div>
@@ -84,12 +86,13 @@ const MenuItems: React.FC<MenuItemsProps> = ({ category, filters }) => {
   const filteredItems = filterItems(category.items);
 
   return (
-    <div className="w-full mb-8">
-      <h2 className="text-2xl font-bold mb-4">{category.name}</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">{category.name}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredItems.map(renderMenuItem)}
       </div>
     </div>
   );
 };
+
 export default MenuItems;

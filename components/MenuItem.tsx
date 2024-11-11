@@ -18,18 +18,24 @@ const MenuItem: React.FC<MenuItemProps> = ({ name, price, description, allergens
 
   return (
     <div 
-      className={`bg-gray-100 p-4 rounded-lg mb-4 cursor-pointer transition-colors duration-200 ${
-        isAdded ? 'bg-green-200' : 'hover:bg-gray-200'
+      className={`bg-white shadow-sm rounded-lg p-5 transition-colors duration-200 hover:shadow-md ${
+        isAdded ? 'bg-green-50' : 'hover:bg-gray-50'
       }`}
       onClick={handleItemClick}
     >
-      <h3 className="text-lg font-semibold mb-1">{name}</h3>
-      {price !== undefined && <p className="text-base font-bold mb-2">£{price.toFixed(2)}</p>}
-      {description && <p className="text-sm text-gray-600 mb-2">{description}</p>}
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+        {price !== undefined && (
+          <p className="text-base font-bold text-gray-900">£{price.toFixed(2)}</p>
+        )}
+      </div>
+      {description && (
+        <p className="text-sm text-gray-600 mb-3">{description}</p>
+      )}
       {allergens && allergens.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-2">
           {allergens.map((allergen) => (
-            <span key={allergen} className="text-xs bg-gray-200 px-2 py-1 rounded">
+            <span key={allergen} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
               {allergen}
             </span>
           ))}
