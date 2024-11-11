@@ -1,31 +1,33 @@
-// components/MenuItem.tsx
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 import { MenuItem as MenuItemType } from '../types/menuTypes';
+import { useBasket } from './BasketContext';
 
-interface MenuItemProps extends MenuItemType {
-  options?: Array<{ name: string; price: number; allergens?: string[] }>;
-}
+interface MenuItemProps extends MenuItemType {}
 
-const MenuItem: React.FC<MenuItemProps> = ({ name, price, description, allergens, options }) => {
+const MenuItem: React.FC<MenuItemProps> = ({ name, price, description, allergens, options, category }) => {
+  const { addToBasket } = useBasket();
+  const [isAdded, setIsAdded] = useState(false);
+
+  const handleItemClick = () => {
+    addToBasket({ name, price, description, allergens, category });
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 500); // Reset after 500ms
+  };
+
   return (
-    <div className="bg-gray-100 p-4 rounded-lg">
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-semibold">{name}</h3>
-        {price !== undefined && <span className="font-bold">£{price.toFixed(2)}</span>}
-      </div>
-      {description && <p className="text-gray-600 text-sm mb-2">{description}</p>}
-      {options && (
-        <div className="mt-2">
-          {options.map((option, index) => (
-            <div key={index} className="flex justify-between items-center mb-1">
-              <span>{option.name}</span>
-              <span className="font-bold">£{option.price.toFixed(2)}</span>
-            </div>
-          ))}
-        </div>
-      )}
+    <div 
+      className={`bg-gray-100 p-4 rounded-lg mb-4 cursor-pointer transition-colors duration-200 ${
+        isAdded ? 'bg-green-200' : 'hover:bg-gray-200'
+      }`}
+      onClick={handleItemClick}
+    >
+      <h3 className="text-lg font-semibold mb-1">{name}</h3>
+      {price !== undefined && <p className="text-base font-bold mb-2">£{price.toFixed(2)}</p>}
+      {description && <p className="text-sm text-gray-600 mb-2">{description}</p>}
       {allergens && allergens.length > 0 && (
-        <div className="flex space-x-2 mt-2">
+        <div className="flex flex-wrap gap-2 mt-2">
           {allergens.map((allergen) => (
             <span key={allergen} className="text-xs bg-gray-200 px-2 py-1 rounded">
               {allergen}

@@ -1,5 +1,9 @@
-// components/MenuNavigation.tsx
-import Link from 'next/link'
+"use client";
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 const categories = [
   "Starters",
@@ -8,24 +12,33 @@ const categories = [
   "Traditional Dishes",
   "Side Dishes",
   "Rice and Breads"
-]
+];
 
-const MenuNavigation: React.FC<{ currentCategory: string }> = ({ currentCategory }) => {
+const MenuNavigation: React.FC = () => {
+  const pathname = usePathname();
+
   return (
-    <nav className="w-1/4 p-4">
-      <ul>
-        {categories.map((category) => (
-          <li key={category} className="mb-2">
-            <Link href={`/menu/${category.toLowerCase().replace(/ /g, '-')}`}>
-              <span className={`hover:text-blue-600 transition-colors ${currentCategory === category.toLowerCase().replace(/ /g, '-') ? 'text-blue-600 font-bold' : ''}`}>
-                {category}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
-}
+    <nav className="space-y-1 pt-14">
+      {categories.map((category) => {
+        const href = `/menu/${category.toLowerCase().replace(/ /g, '-')}`;
+        const isActive = pathname === href;
 
-export default MenuNavigation
+        return (
+          <Link key={category} href={href} className="block">
+            <Button
+              variant={isActive ? "secondary" : "ghost"}
+              className={cn(
+                "w-full justify-start  text-[24px] font-normal leading-[40.32px] text-left",
+                isActive && "bg-accent font-bold text-[#343532]"
+              )}
+            >
+              {category}
+            </Button>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+};
+
+export default MenuNavigation;
