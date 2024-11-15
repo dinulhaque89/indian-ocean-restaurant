@@ -71,7 +71,7 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
           
           {/* Basket section with ID for scroll detection */}
           <div id="basket-section" className="mt-8 mb-20">
-            <Basket />
+            <Basket onPaymentClick={() => setIsPaymentModalOpen(true)} />
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
         </Card>
 
         <Card className="w-1/3">
-          <Basket />
+          <Basket onPaymentClick={() => setIsPaymentModalOpen(true)} />
         </Card>
       </div>
     </>

@@ -6,18 +6,14 @@ import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
-import { Plus, Minus, CreditCard, ShoppingBasket } from "lucide-react"; // Changed to ShoppingBasket
-import PaymentModal from './PaymentModal';
-import { useState } from 'react';
+import { Plus, Minus, CreditCard, ShoppingBasket } from "lucide-react";
 
-const Basket: React.FC = () => {
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+interface BasketProps {
+  onPaymentClick?: () => void;
+}
+
+const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
   const { basket, addToBasket, removeFromBasket, total } = useBasket();
-
-  const handlePayment = () => {
-    // TODO: Implement payment logic
-    console.log('Processing payment...');
-  };
 
   // Group items by category
   const groupedItems = basket.reduce((acc, item) => {
@@ -32,7 +28,6 @@ const Basket: React.FC = () => {
     <Card className="h-full">
       <CardHeader className="pb-4">
         <div className="flex items-center space-x-2">
-          
           <h2 className="text-2xl font-bold">Basket</h2>
           <ShoppingBasket className="w-8 h-8" />
         </div>
@@ -85,30 +80,24 @@ const Basket: React.FC = () => {
         )}
       </CardContent>
       {basket.length > 0 && (
-  <>
-    <Separator />
-    <CardFooter className="flex flex-col gap-4 pt-6">
-      <div className="flex justify-between w-full">
-        <div className="text-2xl font-bold">Total</div>
-        <div className="text-2xl font-bold">£{total.toFixed(2)}</div>
-      </div>
-      <Button 
-        className="w-full py-8 font-semibold text-xl bg-[linear-gradient(95.6deg,rgba(71,107,234,0.74)_-7.65%,#2854F3_-7.63%,rgba(71,107,234,0.74)_98.72%)] hover:opacity-90 transition-opacity shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[4px]"
-        size="lg"
-        onClick={() => setIsPaymentModalOpen(true)}
-        >
-        <CreditCard className="mr-3 h-7 w-7" />
-        Pay Now
+        <>
+          <Separator />
+          <CardFooter className="flex flex-col gap-4 pt-6">
+            <div className="flex justify-between w-full">
+              <div className="text-2xl font-bold">Total</div>
+              <div className="text-2xl font-bold">£{total.toFixed(2)}</div>
+            </div>
+            <Button 
+              className="w-full py-8 font-semibold text-xl bg-[linear-gradient(95.6deg,rgba(71,107,234,0.74)_-7.65%,#2854F3_-7.63%,rgba(71,107,234,0.74)_98.72%)] hover:opacity-90 transition-opacity shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[4px]"
+              size="lg"
+              onClick={onPaymentClick}
+            >
+              <CreditCard className="mr-3 h-7 w-7" />
+              Pay Now
             </Button>
-          
           </CardFooter>
-          <PaymentModal 
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-      />
-    
-  </>
-)}
+        </>
+      )}
     </Card>
   );
 };
