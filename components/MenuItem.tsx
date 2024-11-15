@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { MenuItem as MenuItemType } from '../types/menuTypes';
 import { useBasket } from './BasketContext';
+import { Button } from './ui/button';
+import { Plus } from 'lucide-react';
 
 interface MenuItemProps extends MenuItemType {}
 
@@ -17,30 +19,31 @@ const MenuItem: React.FC<MenuItemProps> = ({ name, price, description, allergens
   };
 
   return (
-    <div 
-      className={`bg-white shadow-sm rounded-lg p-5 transition-colors duration-200 hover:shadow-md ${
-        isAdded ? 'bg-green-50' : 'hover:bg-gray-50'
-      }`}
-      onClick={handleItemClick}
-    >
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
-        {price !== undefined && (
-          <p className="text-base font-bold text-gray-900">£{price.toFixed(2)}</p>
-        )}
-      </div>
-      {description && (
-        <p className="text-sm text-gray-600 mb-3">{description}</p>
-      )}
-      {allergens && allergens.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {allergens.map((allergen) => (
-            <span key={allergen} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-              {allergen}
-            </span>
-          ))}
+    <div className="bg-white border-b last:border-b-0 p-4">
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex-1">
+          <h3 className="font-medium">{name}</h3>
+          {description && (
+            <p className="text-sm text-gray-500 mt-1">{description}</p>
+          )}
+          <div className="flex gap-2 mt-2">
+            {allergens?.map((allergen) => (
+              <span key={allergen} className="text-xs text-gray-500">
+                {allergen}
+              </span>
+            ))}
+          </div>
+          <p className="font-bold mt-2">£{price?.toFixed(2)}</p>
         </div>
-      )}
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleItemClick}
+          className="shrink-0"
+        >
+          <Plus className="h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 };

@@ -18,18 +18,19 @@ const MenuNavigation: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="space-y-1 pt-14">
+    <nav className="flex lg:flex-col gap-2">
       {categories.map((category) => {
         const href = `/menu/${category.toLowerCase().replace(/ /g, '-')}`;
         const isActive = pathname === href;
-
+  
         return (
-          <Link key={category} href={href} className="block">
+          <Link key={category} href={href} className="lg:block">
             <Button
-              variant={isActive ? "secondary" : "ghost"}
+              variant={isActive ? "default" : "ghost"}
               className={cn(
-                "w-full justify-start  text-[24px] font-normal leading-[40.32px] text-left",
-                isActive && "bg-accent font-bold text-[#343532]"
+                "lg:w-full lg:justify-start whitespace-nowrap",
+                "lg:text-[24px] text-sm font-normal",
+                isActive && "bg-primary text-primary-foreground"
               )}
             >
               {category}
@@ -38,7 +39,6 @@ const MenuNavigation: React.FC = () => {
         );
       })}
     </nav>
-  );
-};
+  );};
 
 export default MenuNavigation;
