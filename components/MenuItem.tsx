@@ -19,29 +19,31 @@ const MenuItem: React.FC<MenuItemProps> = ({ name, price, description, allergens
   };
 
   return (
-    <div className="bg-white border-b last:border-b-0 p-4">
+    <div className="border-b last:border-b-0 p-4 lg:p-5">
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
-          <h3 className="font-medium">{name}</h3>
+          <h3 className="text-base lg:text-lg font-medium text-gray-900">{name}</h3>
           {description && (
             <p className="text-sm text-gray-500 mt-1">{description}</p>
           )}
-          <div className="flex gap-2 mt-2">
-            {allergens?.map((allergen) => (
-              <span key={allergen} className="text-xs text-gray-500">
-                {allergen}
-              </span>
-            ))}
-          </div>
           <p className="font-bold mt-2">£{price?.toFixed(2)}</p>
+          {allergens && allergens.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {allergens.map((allergen) => (
+                <span key={allergen} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                  {allergen}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <Button
           size="icon"
-          variant="ghost"
+          variant="outline"
           onClick={handleItemClick}
-          className="shrink-0"
+          className="h-8 w-8 rounded-full shrink-0"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-4 w-4" />
         </Button>
       </div>
     </div>

@@ -1,25 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useBasket } from './BasketContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Checkbox } from "./ui/checkbox";
+import { useBasket } from "./BasketContext";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -29,165 +17,154 @@ interface PaymentModalProps {
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
   const { basket, total } = useBasket();
   const [formData, setFormData] = useState({
+    fullName: '',
     cardNumber: '',
-    expiry: '',
-    cvv: '',
+    expiryDate: '',
+    securityCode: '',
     promoCode: '',
     acceptTerms: false
   });
-  
-  const [isValid, setIsValid] = useState(false);
 
-  useEffect(() => {
-    const isCardNumberValid = formData.cardNumber.replace(/\s/g, '').length === 16;
-    const isExpiryValid = /^\d{2}\/\d{2}$/.test(formData.expiry);
-    const isCvvValid = formData.cvv.length === 3;
-    const areTermsAccepted = formData.acceptTerms;
+  const isFormValid = formData.fullName &&
+                     formData.cardNumber && 
+                     formData.expiryDate && 
+                     formData.securityCode && 
+                     formData.acceptTerms;
 
-    setIsValid(isCardNumberValid && isExpiryValid && isCvvValid && areTermsAccepted);
-  }, [formData]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    let formattedValue = value;
-
-    if (name === 'cardNumber') {
-      formattedValue = value
-        .replace(/\D/g, '')
-        .slice(0, 16)
-        .replace(/(\d{4})(?=\d)/g, '$1 ');
-    }
-
-    if (name === 'expiry') {
-      formattedValue = value
-        .replace(/\D/g, '')
-        .slice(0, 4)
-        .replace(/(\d{2})(\d)/, '$1/$2');
-    }
-
-    if (name === 'cvv') {
-      formattedValue = value.replace(/\D/g, '').slice(0, 3);
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      [name]: formattedValue
-    }));
-  };
-
-  const handleSubmit = () => {
-    if (isValid) {
-      console.log('Processing payment...', formData);
-    }
+  const onSubmit = async () => {
+    if (!isFormValid) return;
+    onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Complete Your Payment</DialogTitle>
-        </DialogHeader>
-        
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-4">
-          {/* Payment Form */}
-          <Card className="md:col-span-3">
-            <CardContent className="space-y-6 pt-6">
+      <DialogContent className={cn(
+        "sm:max-w-[900px]",
+        "w-[100vw] h-[100vh] sm:h-auto rounded-none sm:rounded-lg p-0",
+        "sm:max-h-[85vh] overflow-y-auto"
+      )}>
+        <div className="flex flex-col sm:flex-row h-full sm:h-auto">
+          {/* Payment Section */}
+          <div className="flex-1 p-4 sm:p-6">
+            <DialogHeader className="text-left mb-6">
+              <DialogTitle>Complete Your Payment</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input 
+                  id="fullName"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                  className="h-12 sm:h-10 bg-[#F8F9FB]"
+                  placeholder="John Smith"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cardNumber">Card Number</Label>
+                <Input 
+                  id="cardNumber"
+                  value={formData.cardNumber}
+                  onChange={(e) => setFormData({...formData, cardNumber: e.target.value})}
+                  className="h-12 sm:h-10 bg-[#F8F9FB]"
+                  placeholder="4242 4242 4242 4242"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="expiry">Expiry Date</Label>
+                  <Input 
+                    id="expiry"
+                    value={formData.expiryDate}
+                    onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
+                    className="h-12 sm:h-10 bg-[#F8F9FB]"
+                    placeholder="MM/YY"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="security">Security Code</Label>
+                  <Input 
+                    id="security"
+                    value={formData.securityCode}
+                    onChange={(e) => setFormData({...formData, securityCode: e.target.value})}
+                    className="h-12 sm:h-10 bg-[#F8F9FB]"
+                    placeholder="123"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="promo">Promo Code (Optional)</Label>
+                <Input 
+                  id="promo"
+                  value={formData.promoCode}
+                  onChange={(e) => setFormData({...formData, promoCode: e.target.value})}
+                  className="h-12 sm:h-10 bg-[#F8F9FB]"
+                  placeholder="Enter promo code"
+                />
+              </div>
+
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cardNumber">Card Number</Label>
-                  <Input
-                    id="cardNumber"
-                    name="cardNumber"
-                    placeholder="1234 5678 9012 3456"
-                    value={formData.cardNumber}
-                    onChange={handleInputChange}
-                    maxLength={19}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expiry">Expiry Date</Label>
-                    <Input
-                      id="expiry"
-                      name="expiry"
-                      placeholder="MM/YY"
-                      value={formData.expiry}
-                      onChange={handleInputChange}
-                      maxLength={5}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cvv">Security Code</Label>
-                    <Input
-                      id="cvv"
-                      name="cvv"
-                      placeholder="123"
-                      value={formData.cvv}
-                      onChange={handleInputChange}
-                      maxLength={3}
-                      type="password"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="promoCode">Promo Code (Optional)</Label>
-                  <Input
-                    id="promoCode"
-                    name="promoCode"
-                    placeholder="Enter promo code"
-                    value={formData.promoCode}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
                 <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="terms"
+                  <Checkbox 
+                    id="terms" 
                     checked={formData.acceptTerms}
                     onCheckedChange={(checked) => 
-                      setFormData(prev => ({ ...prev, acceptTerms: checked as boolean }))
-                    }
+                      setFormData({...formData, acceptTerms: checked as boolean})}
                   />
-                  <Label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  <Label htmlFor="terms" className="text-sm">
                     I accept the terms and conditions
                   </Label>
                 </div>
-              </div>
 
+                <div className="hidden sm:block">
+                  <Button 
+                    onClick={onSubmit}
+                    disabled={!isFormValid}
+                    className="w-full h-10 bg-[#E54D2E] hover:bg-[#E54D2E]/90 text-white font-medium"
+                  >
+                    Pay £{total.toFixed(2)}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Order Summary Section */}
+          <div className="border-t sm:border-l sm:border-t-0 sm:w-[400px] bg-white">
+            <div className="p-4 sm:p-6">
+              <h3 className="font-semibold text-lg mb-4">Order Summary</h3>
+              <div className="space-y-3">
+                {basket.map((item) => (
+                  <div key={item.name} className="flex justify-between text-sm">
+                    <span>{item.quantity}x {item.name}</span>
+                    <span>£{((item.price || 0) * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-4 pt-4 border-t">
+                <div className="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>£{total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile-only payment button */}
+            <div className="block sm:hidden p-4 border-t">
               <Button 
-                className="w-full h-14 text-lg font-medium"
-                disabled={!isValid}
-                variant={isValid ? "destructive" : "secondary"}
-                onClick={handleSubmit}
+                onClick={onSubmit}
+                disabled={!isFormValid}
+                className="w-full h-12 bg-[#E54D2E] hover:bg-[#E54D2E]/90 text-white font-medium"
               >
                 Pay £{total.toFixed(2)}
               </Button>
-            </CardContent>
-          </Card>
-
-          {/* Order Summary */}
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[300px] pr-4">
-                {basket.map((item) => (
-                  <div key={item.name} className="flex justify-between py-2">
-                    <span className="text-sm">{item.quantity}x {item.name}</span>
-                    <span className="text-sm font-medium">£{((item.price || 0) * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
-              </ScrollArea>
-              <Separator className="my-4" />
-              <div className="flex justify-between font-medium">
-                <span>Total</span>
-                <span>£{total.toFixed(2)}</span>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
