@@ -31,7 +31,7 @@ export default function RootLayout({
 
         <BasketProvider>
           <Header />
-          {children}
+            {children}
           <Footer />
         </BasketProvider>
         </UserProvider>
