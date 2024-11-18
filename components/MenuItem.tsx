@@ -32,31 +32,29 @@ const MenuItem: React.FC<MenuItemProps> = ({ name, price, description, allergens
     <div 
       className={cn(
         "bg-white shadow-sm rounded-lg p-5 transition-colors duration-200 hover:shadow-md",
-        "min-h-[180px] flex flex-col justify-between",
+        "min-h-[120px] flex flex-col",
         isAdded ? 'bg-green-500/10' : 'hover:bg-gray-50'
       )}
       onClick={handleItemClick}
     >
-      <div>
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
-          {price !== undefined && (
-            <p className="text-base font-bold text-gray-900">£{price.toFixed(2)}</p>
-          )}
-        </div>
+      <div className="space-y-1">
+        <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+        {price !== undefined && (
+          <p className="text-base font-bold text-gray-900">£{price.toFixed(2)}</p>
+        )}
         {description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{description}</p>
+          <p className="text-sm text-gray-600 line-clamp-3 mb-2">{description}</p>
+        )}
+        {allergens && allergens.length > 0 && (
+          <div className="flex flex-nowrap gap-1 overflow-x-auto scrollbar-hide">
+            {allergens.map((allergen) => (
+              <span key={allergen} className="text-xs whitespace-nowrap bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
+                {allergen}
+              </span>
+            ))}
+          </div>
         )}
       </div>
-      {allergens && allergens.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-auto">
-          {allergens.map((allergen) => (
-            <span key={allergen} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-              {allergen}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

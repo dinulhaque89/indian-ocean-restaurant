@@ -112,37 +112,37 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
       </div>
 
       {/* Desktop View - Unchanged */}
-      <div className="hidden lg:flex gap-6 p-6 min-h-[calc(100vh-4rem)]">
-        <Card className="w-[20%] p-4">
-          <div className="mb-4">
-            <SearchDialog menuItems={menuCategories} />
-          </div>
-          <MenuNavigation />
-        </Card>
+      <div className="hidden lg:flex gap-4 p-4 min-h-[calc(100vh-4rem)]">
+  <Card className="w-[20%] p-4">
+    <div className="mb-4">
+      <SearchDialog menuItems={menuCategories} />
+    </div>
+    <MenuNavigation />
+  </Card>
 
-        <Card className="w-[52%] p-4">
-          <FilterBar onFilterChange={handleFilterChange} />
-          <div className="mt-4">
-            {currentCategory ? (
-              isLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <MenuItemSkeleton key={i} />
-                  ))}
-                </div>
-              ) : (
-                <MenuItems category={currentCategory} filters={filters} />
-              )
-            ) : (
-              <p className="text-muted-foreground">Category not found</p>
-            )}
+  <Card className="w-[65%] p-4">
+    <FilterBar onFilterChange={handleFilterChange} />
+    <div className="mt-4">
+      {currentCategory ? (
+        isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <MenuItemSkeleton key={i} />
+            ))}
           </div>
-        </Card>
+        ) : (
+          <MenuItems category={currentCategory} filters={filters} />
+        )
+      ) : (
+        <p className="text-muted-foreground">Category not found</p>
+      )}
+    </div>
+  </Card>
 
-        <Card className="w-[25%]">
-          <Basket onPaymentClick={() => setIsPaymentModalOpen(true)} />
-        </Card>
-      </div>
+  <Card className="w-[35%]">
+    <Basket onPaymentClick={() => setIsPaymentModalOpen(true)} />
+  </Card>
+</div>
     </>
   );
 }

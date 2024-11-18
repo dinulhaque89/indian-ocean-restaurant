@@ -229,28 +229,28 @@ export const menuCategories: MenuCategory[] = [
             category: "Traditional Dishes",
             options: [
               {
-                name: "Chicken Tikka Massalla",
+                name: "Chicken Tikka",
                 price: 11.00,
                 allergens: ["Milk"],
                 meatType: "Chicken",
                 spiceLevel: "Medium"
               },
               {
-                name: "Lamb Tikka Massalla",
+                name: "Lamb Tikka",
                 price: 11.50,
                 allergens: ["Milk"],
                 meatType: "Lamb",
                 spiceLevel: "Medium"
               },
               {
-                name: "King Prawn Massalla",
+                name: "King Prawn",
                 price: 16.00,
                 allergens: ["Crustaceans", "Milk"],
                 meatType: "Prawn",
                 spiceLevel: "Medium"
               },
               {
-                name: "Vegetable Massalla",
+                name: "Veg",
                 price: 11.00,
                 allergens: ["Milk"],
                 dietary: ["Vegetarian"],
@@ -264,35 +264,35 @@ export const menuCategories: MenuCategory[] = [
             category: "Traditional Dishes",
             options: [
               {
-                name: "Chicken Korma",
+                name: "Chicken",
                 price: 11.00,
                 allergens: ["Milk"],
                 meatType: "Chicken",
                 spiceLevel: "Mild"
               },
               {
-                name: "Chicken Tikka Korma",
+                name: "Chicken Tikka",
                 price: 12.00,
                 allergens: ["Milk"],
                 meatType: "Chicken",
                 spiceLevel: "Mild"
               },
               {
-                name: "Lamb Korma",
+                name: "Lamb",
                 price: 12.00,
                 allergens: ["Milk"],
                 meatType: "Lamb",
                 spiceLevel: "Mild"
               },
               {
-                name: "Vegetable Korma",
+                name: "Vegetable",
                 price: 11.00,
                 allergens: ["Milk"],
                 dietary: ["Vegetarian"],
                 spiceLevel: "Mild"
               },
               {
-                name: "King Prawn Korma",
+                name: "King Prawn",
                 price: 14.50,
                 allergens: ["Crustaceans", "Milk"],
                 meatType: "Prawn",
@@ -306,32 +306,32 @@ export const menuCategories: MenuCategory[] = [
             category: "Traditional Dishes",
             options: [
               {
-                name: "Chicken Curry",
+                name: "Chicken",
                 price: 14.00,
                 allergens: ["Mustard"],
                 meatType: "Chicken",
                 spiceLevel: "Medium"
               },
               {
-                name: "Chicken Tikka Curry",
+                name: "Chicken Tikka",
                 price: 14.00,
                 meatType: "Chicken",
                 spiceLevel: "Medium"
               },
               {
-                name: "Lamb Curry",
+                name: "Lamb",
                 price: 14.00,
                 meatType: "Lamb",
                 spiceLevel: "Medium"
               },
               {
-                name: "Vegetable Curry",
+                name: "Vegetable",
                 price: 14.00,
                 dietary: ["Vegetarian"],
                 spiceLevel: "Medium"
               },
               {
-                name: "King Prawn Curry",
+                name: "King Prawn",
                 price: 14.50,
                 allergens: ["Crustaceans"],
                 meatType: "Prawn",
