@@ -113,14 +113,14 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
 
       {/* Desktop View - Unchanged */}
       <div className="hidden lg:flex gap-6 p-6 min-h-[calc(100vh-4rem)]">
-        <Card className="w-1/5 p-4">
+        <Card className="w-[20%] p-4">
           <div className="mb-4">
             <SearchDialog menuItems={menuCategories} />
           </div>
           <MenuNavigation />
         </Card>
 
-        <Card className="w-1/2 p-4">
+        <Card className="w-[52%] p-4">
           <FilterBar onFilterChange={handleFilterChange} />
           <div className="mt-4">
             {currentCategory ? (
@@ -139,7 +139,7 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
           </div>
         </Card>
 
-        <Card className="w-1/3">
+        <Card className="w-[25%]">
           <Basket onPaymentClick={() => setIsPaymentModalOpen(true)} />
         </Card>
       </div>

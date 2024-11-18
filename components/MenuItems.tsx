@@ -10,6 +10,7 @@ import {
 } from '@/types/menuTypes';
 import { useBasket } from '@/components/BasketContext';
 import MenuItem from './MenuItem';
+import { cn } from '@/lib/utils';
 
 
 interface MenuItemsProps {
@@ -87,9 +88,15 @@ const MenuItems: React.FC<MenuItemsProps> = ({ category, filters }) => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900">{category.name}</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredItems.map(renderMenuItem)}
+    <h2 className="text-2xl font-bold mb-6 text-gray-900">{category.name}</h2>
+    <div className={cn(
+      "grid gap-6",
+      "grid-cols-1 md:grid-cols-1",
+      category.name === "Traditional Dishes" 
+        ? "lg:grid-cols-1" 
+        : "lg:grid-cols-2"
+    )}>
+      {filteredItems.map(renderMenuItem)}
       </div>
     </div>
   );
