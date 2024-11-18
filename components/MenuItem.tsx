@@ -19,7 +19,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ name, price, description, allergens
   return (
     <div 
       className={`bg-white shadow-sm rounded-lg p-5 transition-colors duration-200 hover:shadow-md ${
-        isAdded ? 'bg-green-50' : 'hover:bg-gray-50'
+        isAdded ? 'bg-green-500/10' : 'hover:bg-gray-50'
       }`}
       onClick={handleItemClick}
     >
