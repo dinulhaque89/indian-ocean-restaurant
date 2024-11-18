@@ -46,30 +46,39 @@ const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
                 </h3>
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.name} className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="text-base font-medium leading-none">{item.name}</p>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => removeFromBasket(item.name)}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="w-8 text-center font-medium text-lg">{item.quantity}</span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => addToBasket(item)}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                        <span className="w-20 text-right font-bold text-primary">
-                          £{((item.price || 0) * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
+                    <div 
+  key={item.name} 
+  className="group flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors"
+>
+  <div className="flex-1">
+    <p className="text-base font-medium leading-none group-hover:text-primary transition-colors">
+      {item.name}
+    </p>
+  </div>
+  <div className="flex items-center space-x-2">
+    <div className="flex items-center rounded-md border border-input bg-background">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 rounded-r-none"
+        onClick={() => removeFromBasket(item.name)}
+      >
+        <Minus className="h-3 w-3" />
+      </Button>
+      <div className="w-8 text-center font-medium">{item.quantity}</div>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 rounded-l-none"
+        onClick={() => addToBasket(item)}
+      >
+        <Plus className="h-3 w-3" />
+      </Button>
+    </div>
+    <span className="w-20 text-right font-bold text-primary">
+      £{((item.price || 0) * item.quantity).toFixed(2)}
+    </span>
+  </div>
                     </div>
                   ))}
                 </div>

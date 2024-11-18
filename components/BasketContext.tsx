@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import { MenuItem } from '../types/menuTypes';
+import { useToast } from "@/hooks/use-toast";
+import { MenuItemSkeleton, BasketItemSkeleton } from "@/components/skeletons";
 
 interface BasketItem extends MenuItem {
   quantity: number;
@@ -27,6 +29,8 @@ export const useBasket = () => {
 export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [basket, setBasket] = React.useState<BasketItem[]>([]);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const { toast } = useToast();
+
 
   React.useEffect(() => {
     const savedBasket = localStorage.getItem('basket');
@@ -46,16 +50,24 @@ export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setBasket((prevBasket) => {
       const existingItem = prevBasket.find((basketItem) => basketItem.name === item.name);
       if (existingItem) {
+        toast({
+          title: "Updated basket",
+          description: `Added another ${item.name} to your basket`,
+        });
         return prevBasket.map((basketItem) =>
           basketItem.name === item.name
             ? { ...basketItem, quantity: basketItem.quantity + 1 }
             : basketItem
         );
       }
+      toast({
+        title: "Added to basket",
+        description: `${item.name} has been added to your basket`,
+      });
       return [...prevBasket, { ...item, quantity: 1 }];
     });
   };
-
+  
   const removeFromBasket = (itemName: string) => {
     setBasket((prevBasket) =>
       prevBasket.reduce((acc, item) => {
