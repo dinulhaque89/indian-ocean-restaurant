@@ -13,12 +13,16 @@ import { menuCategories } from '@/data/menuData';
 import { Button } from './ui/button';
 import { useBasket } from './BasketContext';
 import PaymentModal from './PaymentModal';
+import { MenuItemSkeleton } from "@/components/skeletons";
+
 
 interface ClientMenuPageProps {
   currentCategory: MenuCategory | undefined;
 }
 
 export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps) {
+  const [isLoading, setIsLoading] = useState(true);
+
   const [showFixedButton, setShowFixedButton] = useState(true);
   const [filters, setFilters] = useState<FilterOptions>({
     dietary: [],
@@ -47,6 +51,11 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, [currentCategory]);
   return (
     <>
       {/* Mobile View */}
@@ -62,12 +71,20 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
 
       {/* Scrollable Content Area */}
       <div className="flex-1 px-4 pb-24">
-          <FilterBar onFilterChange={handleFilterChange} />
-          {currentCategory ? (
-            <MenuItems category={currentCategory} filters={filters} />
+        <FilterBar onFilterChange={handleFilterChange} />
+        {currentCategory ? (
+          isLoading ? (
+            <div className="space-y-4 mt-4">
+              {[1, 2, 3].map((i) => (
+                <MenuItemSkeleton key={i} />
+              ))}
+            </div>
           ) : (
-            <p className="text-muted-foreground">Category not found</p>
-          )}
+            <MenuItems category={currentCategory} filters={filters} />
+          )
+        ) : (
+          <p className="text-muted-foreground">Category not found</p>
+        )}
           
           {/* Basket section with ID for scroll detection */}
           <div id="basket-section" className="mt-8 mb-20">
@@ -107,7 +124,15 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
           <FilterBar onFilterChange={handleFilterChange} />
           <div className="mt-4">
             {currentCategory ? (
-              <MenuItems category={currentCategory} filters={filters} />
+              isLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <MenuItemSkeleton key={i} />
+                  ))}
+                </div>
+              ) : (
+                <MenuItems category={currentCategory} filters={filters} />
+              )
             ) : (
               <p className="text-muted-foreground">Category not found</p>
             )}

@@ -3,13 +3,25 @@
 import React, { useState } from 'react';
 import { MenuItem as MenuItemType } from '../types/menuTypes';
 import { useBasket } from './BasketContext';
+import { MenuItemSkeleton } from "@/components/skeletons";
+
 
 interface MenuItemProps extends MenuItemType {}
 
 const MenuItem: React.FC<MenuItemProps> = ({ name, price, description, allergens, options, category }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const { addToBasket } = useBasket();
   const [isAdded, setIsAdded] = useState(false);
+ 
+  React.useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => setIsLoading(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
+  if (isLoading) {
+    return <MenuItemSkeleton />;
+  }
   const handleItemClick = () => {
     addToBasket({ name, price, description, allergens, category });
     setIsAdded(true);

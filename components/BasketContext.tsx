@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { MenuItem } from '../types/menuTypes';
 import { useToast } from "@/hooks/use-toast";
-import { MenuItemSkeleton, BasketItemSkeleton } from "@/components/skeletons";
+import { BasketItemSkeleton } from "@/components/skeletons";
 
 interface BasketItem extends MenuItem {
   quantity: number;
@@ -86,7 +86,7 @@ export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const total = basket.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
 
   if (!isLoaded) {
-    return null; // or a loading spinner
+    return <BasketItemSkeleton />;
   }
 
   return (
