@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useBasket } from './BasketContext';
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
@@ -10,18 +10,55 @@ import { Plus, Minus, CreditCard, ShoppingBasket } from "lucide-react";
 
 interface BasketProps {
   onPaymentClick?: () => void;
+ // Start of Selection
 }
+
+interface QuantityControlProps {
+  item: any;
+  onAdd: () => void;
+  onRemove: () => void;
+}
+
+const QuantityControl: React.FC<QuantityControlProps> = ({ item, onAdd, onRemove }) => (
+  <div className="flex items-center rounded-md border border-input bg-background">
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-7 w-7 rounded-r-none"
+      onClick={onRemove}
+    >
+      <Minus className="h-3 w-3" />
+    </Button>
+    <div className="w-7 text-center text-sm font-medium">
+      {item.quantity}
+    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-7 w-7 rounded-l-none"
+      onClick={onAdd}
+    >
+      <Plus className="h-3 w-3" />
+    </Button>
+  </div>
+);
 
 const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
   const { basket, addToBasket, removeFromBasket, total } = useBasket();
 
-  const groupedItems = basket.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
-    acc[item.category].push(item);
-    return acc;
-  }, {} as Record<string, typeof basket>);
+  const groupedItems = useMemo(() => {
+    return basket.reduce((acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    }, {} as Record<string, typeof basket>);
+  }, [basket]);
+
+  const handleRemoveItem = useCallback((itemName: string) => {
+    removeFromBasket(itemName);
+  }, [removeFromBasket]);
 
   return (
     <Card className="h-full">
@@ -56,29 +93,11 @@ const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="flex items-center rounded-md border border-input bg-background">
-                            <Button
-                              aria-label={`Decrease quantity of ${item.name}`}
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-7 rounded-r-none"
-                              onClick={() => removeFromBasket(item.name)}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <div className="w-7 text-center text-sm font-medium">
-                              {item.quantity}
-                            </div>
-                            <Button
-                              aria-label={`Increase quantity of ${item.name}`}
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-7 rounded-l-none"
-                              onClick={() => addToBasket(item)}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
-                          </div>
+                          <QuantityControl
+                            item={item}
+                            onAdd={() => addToBasket(item)}
+                            onRemove={() => handleRemoveItem(item.name)}
+                          />
                           <span className="w-16 text-right text-sm font-semibold">
                             £{((item.price || 0) * item.quantity).toFixed(2)}
                           </span>
