@@ -11,6 +11,7 @@ import {
 import { useBasket } from '@/components/BasketContext';
 import MenuItem from './MenuItem';
 import { cn } from '@/lib/utils';
+import { TraditionalDishesSlider } from './TraditionalDishesSlider';
 
 
 interface MenuItemsProps {
@@ -56,64 +57,97 @@ const MenuItems: React.FC<MenuItemsProps> = ({ category, filters }) => {
         if (filteredOptions.length === 0) return null;
   
         return (
-          <div key={item.name} className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">{item.name}</h3>
-            {item.description && (
-              <p className="text-sm text-gray-600 mb-4">{item.description}</p>
-            )}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              {filteredOptions.map((option, index) => (
-                <div 
-  key={`${item.name}-${option.name}-${index}`}
-  className={cn(
-    "bg-white shadow-sm rounded-lg p-4 transition-colors duration-100",
-    "h-[115px] w-full flex flex-col hover:shadow-md cursor-pointer",
-    addedItems[`${option.name}-${item.name}`] ? 'bg-green-500/10' : 'hover:bg-gray-50'
-                  )}
-                  onClick={() => {
-                    if (isTransitioning) return;
-                    
-                    setIsTransitioning(true);
-                    setAddedItems(prev => ({ ...prev, [`${option.name}-${item.name}`]: true }));
-                    
-                    addToBasket({
-                      name: `${option.name} - ${item.name}`,
-                      price: option.price,
-                      description: item.description,
-                      allergens: option.allergens,
-                      category: item.category
-                    });
+          <>
+            {/* Mobile View - Horizontal Slider */}
+            <div className="lg:hidden">
+              <TraditionalDishesSlider
+                key={item.name}
+                item={{...item, options: filteredOptions}}
+                onOptionClick={(option, itemName) => {
+                  if (isTransitioning) return;
                   
-                    setTimeout(() => {
-                      setAddedItems(prev => ({ ...prev, [`${option.name}-${item.name}`]: false }));
-                      setIsTransitioning(false);
-                    }, 300); // Reduced from 500ms to 300ms
-                  }}
-                >
-                  <div className="flex-1">
-                    <h4 className="text-base font-bold text-gray-900">
-                      {option.name}
-  </h4>
-  <p className="text-base font-semibold text-gray-900">
-    £{option.price.toFixed(2)}
-  </p>
-  {option.allergens && option.allergens.length > 0 && (
-    <div className="flex flex-wrap gap-1 mt-1">
-      {option.allergens.map((allergen) => (
-        <span 
-          key={allergen}
-          className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full"
-        >
-          {allergen}
-        </span>
-      ))}
-    </div>
-  )}
-</div>
-                </div>
-              ))}
+                  setIsTransitioning(true);
+                  setAddedItems(prev => ({ ...prev, [`${option.name}-${itemName}`]: true }));
+                  
+                  addToBasket({
+                    name: `${option.name} - ${itemName}`,
+                    price: option.price,
+                    description: item.description,
+                    allergens: option.allergens,
+                    category: item.category
+                  });
+                
+                  setTimeout(() => {
+                    setAddedItems(prev => ({ ...prev, [`${option.name}-${itemName}`]: false }));
+                    setIsTransitioning(false);
+                  }, 300);
+                }}
+                addedItems={addedItems}
+              />
             </div>
-          </div>
+
+            {/* Desktop View - Grid Layout */}
+            <div className="hidden lg:block">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-gray-900 border-b pb-2">{item.name}</h3>
+                {item.description && (
+                  <p className="text-sm text-gray-600 mb-4">{item.description}</p>
+                )}
+                <div className="grid grid-cols-5 gap-4">
+                  {filteredOptions.map((option, index) => (
+                    <div 
+                      key={`${item.name}-${option.name}-${index}`}
+                      className={cn(
+                        "bg-white shadow-sm rounded-lg p-4 transition-colors duration-100",
+                        "flex flex-col hover:shadow-md cursor-pointer",
+                        addedItems[`${option.name}-${item.name}`] ? 'bg-green-500/10' : 'hover:bg-gray-50'
+                      )}
+                      onClick={() => {
+                        if (isTransitioning) return;
+                        
+                        setIsTransitioning(true);
+                        setAddedItems(prev => ({ ...prev, [`${option.name}-${item.name}`]: true }));
+                        
+                        addToBasket({
+                          name: `${option.name} - ${item.name}`,
+                          price: option.price,
+                          description: item.description,
+                          allergens: option.allergens,
+                          category: item.category
+                        });
+                      
+                        setTimeout(() => {
+                          setAddedItems(prev => ({ ...prev, [`${option.name}-${item.name}`]: false }));
+                          setIsTransitioning(false);
+                        }, 300);
+                      }}
+                    >
+                      <div className="flex-1">
+                        <h4 className="text-base font-bold text-gray-900">
+                          {option.name}
+                        </h4>
+                        <p className="text-base font-semibold text-gray-900">
+                          £{option.price.toFixed(2)}
+                        </p>
+                        {option.allergens && option.allergens.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {option.allergens.map((allergen) => (
+                              <span 
+                                key={allergen}
+                                className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full"
+                              >
+                                {allergen}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
         );
       }
     }
@@ -127,9 +161,9 @@ const MenuItems: React.FC<MenuItemsProps> = ({ category, filters }) => {
     <div className="w-full mx-auto px-2 mb-6">
       <h2 className="text-2xl font-bold mb-4 text-gray-900">{category.name}</h2>
       <div className={cn(
-        category.name !== "Traditional Dishes" 
-          ? "grid grid-cols-1 lg:grid-cols-2 gap-4" 
-          : "space-y-6"
+        category.name === "Traditional Dishes" 
+          ? "space-y-2"
+          : "grid grid-cols-1 lg:grid-cols-2 gap-4"
       )}>
         {filteredItems.map(renderMenuItem)}
       </div>

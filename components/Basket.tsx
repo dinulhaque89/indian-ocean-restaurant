@@ -7,10 +7,10 @@ import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Plus, Minus, CreditCard, ShoppingBasket } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface BasketProps {
   onPaymentClick?: () => void;
- // Start of Selection
 }
 
 interface QuantityControlProps {
@@ -43,25 +43,57 @@ const QuantityControl: React.FC<QuantityControlProps> = ({ item, onAdd, onRemove
   </div>
 );
 
+const PriceDisplay = ({ price }: { price: number }) => (
+  <span className="w-16 text-right text-sm font-semibold">
+    £{price.toFixed(2)}
+  </span>
+);
+
 const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
   const { basket, addToBasket, removeFromBasket, total } = useBasket();
 
-  const groupedItems = useMemo(() => {
-    return basket.reduce((acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = [];
-      }
-      acc[item.category].push(item);
-      return acc;
-    }, {} as Record<string, typeof basket>);
-  }, [basket]);
+  const groupedItems = useMemo(() => basket.reduce((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = [];
+    }
+    acc[item.category].push(item);
+    return acc;
+  }, {} as Record<string, typeof basket>), [basket]);
 
-  const handleRemoveItem = useCallback((itemName: string) => {
-    removeFromBasket(itemName);
-  }, [removeFromBasket]);
+  const handleAddToBasket = (item: any) => {
+    try {
+      addToBasket(item);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add item to basket.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveFromBasket = (itemName: string) => {
+    try {
+      removeFromBasket(itemName);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove item from basket.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const calculatedTotal = useMemo(() => basket.reduce((acc, item) => {
+    if (typeof item.price !== 'number' || isNaN(item.price)) {
+      console.error(`Invalid price for item: ${item.name}`);
+      return acc;
+    }
+    return acc + (item.price * item.quantity);
+  }, 0), [basket]);
 
   return (
-    <Card className="h-full">
+    <Card className="h-full ml-auto mr-0 w-66">
       <CardHeader className="pb-2">
         <div className="flex items-center space-x-2">
           <h2 className="text-2xl font-bold">Basket</h2>
@@ -95,12 +127,10 @@ const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
                         <div className="flex items-center gap-3">
                           <QuantityControl
                             item={item}
-                            onAdd={() => addToBasket(item)}
-                            onRemove={() => handleRemoveItem(item.name)}
+                            onAdd={() => handleAddToBasket(item)}
+                            onRemove={() => handleRemoveFromBasket(item.name)}
                           />
-                          <span className="w-16 text-right text-sm font-semibold">
-                            £{((item.price || 0) * item.quantity).toFixed(2)}
-                          </span>
+                          <PriceDisplay price={(item.price || 0) * item.quantity} />
                         </div>
                       </div>
                     ))}
@@ -117,7 +147,7 @@ const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
           <CardFooter className="flex flex-col gap-4 pt-2">
             <div className="flex justify-between w-full">
               <div className="text-xl font-bold">Total</div>
-              <div className="text-xl font-bold">£{total.toFixed(2)}</div>
+              <div className="text-xl font-bold">£{calculatedTotal.toFixed(2)}</div>
             </div>
             <Button 
               className="w-full py-8 font-semibold text-xl bg-[linear-gradient(95.6deg,rgba(71,107,234,0.74)_-7.65%,#2854F3_-7.63%,rgba(71,107,234,0.74)_98.72%)] hover:opacity-90 transition-opacity shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[4px]"
