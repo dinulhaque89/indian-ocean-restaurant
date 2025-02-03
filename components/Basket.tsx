@@ -57,6 +57,7 @@ const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
                       <div className="flex items-center gap-3">
                         <div className="flex items-center rounded-md border border-input bg-background">
                           <Button
+                            aria-label={`Decrease quantity of ${item.name}`}
                             variant="ghost"
                             size="sm"
                             className="h-7 w-7 rounded-r-none"
@@ -68,6 +69,7 @@ const Basket: React.FC<BasketProps> = ({ onPaymentClick }) => {
                             {item.quantity}
                           </div>
                           <Button
+                            aria-label={`Increase quantity of ${item.name}`}
                             variant="ghost"
                             size="sm"
                             className="h-7 w-7 rounded-l-none"
