@@ -14,6 +14,7 @@ import { Button } from './ui/button';
 import { useBasket } from './BasketContext';
 import PaymentModal from './PaymentModal';
 import { MenuItemSkeleton } from "@/components/skeletons";
+import StripeProvider from './StripeProvider';
 
 
 interface ClientMenuPageProps {
@@ -105,10 +106,12 @@ export default function ClientMenuPage({ currentCategory }: ClientMenuPageProps)
           </div>
         )}
 
-        <PaymentModal 
-          isOpen={isPaymentModalOpen}
-          onClose={() => setIsPaymentModalOpen(false)}
-        />
+        <StripeProvider>
+          <PaymentModal 
+            isOpen={isPaymentModalOpen}
+            onClose={() => setIsPaymentModalOpen(false)}
+          />
+        </StripeProvider>
       </div>
 
       {/* Desktop View - Unchanged */}

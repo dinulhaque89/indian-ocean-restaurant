@@ -4,19 +4,30 @@ import * as React from 'react';
 import { MenuItem } from '../types/menuTypes';
 import { useToast } from "@/hooks/use-toast";
 import { BasketItemSkeleton } from "@/components/skeletons";
+import { createContext } from 'react';
+import { useCallback, useMemo } from 'react';
 
 interface BasketItem extends MenuItem {
   quantity: number;
 }
 
-interface BasketContextType {
+export interface BasketContextType {
   basket: BasketItem[];
-  addToBasket: (item: MenuItem) => void;
+  addToBasket: (item: BasketItem) => void;
   removeFromBasket: (itemName: string) => void;
+  updateQuantity: (itemName: string, quantity: number) => void;
   total: number;
+  clearBasket: () => void;
 }
 
-const BasketContext = React.createContext<BasketContextType | undefined>(undefined);
+export const BasketContext = createContext<BasketContextType>({
+  basket: [],
+  addToBasket: () => {},
+  removeFromBasket: () => {},
+  updateQuantity: () => {},
+  total: 0,
+  clearBasket: () => {},
+});
 
 export const useBasket = () => {
   const context = React.useContext(BasketContext);
@@ -30,7 +41,6 @@ export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [basket, setBasket] = React.useState<BasketItem[]>([]);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const { toast } = useToast();
-
 
   React.useEffect(() => {
     const savedBasket = localStorage.getItem('basket');
@@ -83,14 +93,35 @@ export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   };
 
+  const updateQuantity = (itemName: string, quantity: number) => {
+    setBasket((prevBasket) =>
+      prevBasket.map((item) =>
+        item.name === itemName ? { ...item, quantity } : item
+      )
+    );
+  };
+
   const total = basket.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+
+  const clearBasket = useCallback(() => {
+    setBasket([]);
+  }, []);
+
+  const value = useMemo(() => ({
+    basket,
+    addToBasket,
+    removeFromBasket,
+    updateQuantity,
+    total,
+    clearBasket,
+  }), [basket, addToBasket, removeFromBasket, updateQuantity, total, clearBasket]);
 
   if (!isLoaded) {
     return <BasketItemSkeleton />;
   }
 
   return (
-    <BasketContext.Provider value={{ basket, addToBasket, removeFromBasket, total }}>
+    <BasketContext.Provider value={value}>
       {children}
     </BasketContext.Provider>
   );

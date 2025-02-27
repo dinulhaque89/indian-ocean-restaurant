@@ -1,13 +1,14 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
+import { Dialog, DialogContent } from "./ui/dialog";
 import { useBasket } from "./BasketContext";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { Button } from "./ui/button";
+import { Loader2, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { Checkbox } from "./ui/checkbox";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -15,154 +16,244 @@ interface PaymentModalProps {
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
-  const { basket, total } = useBasket();
-  const [formData, setFormData] = useState({
-    fullName: '',
-    cardNumber: '',
-    expiryDate: '',
-    securityCode: '',
-    promoCode: '',
-    acceptTerms: false
-  });
+  const { basket, total, clearBasket } = useBasket();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentComplete, setPaymentComplete] = useState(false);
+  const { toast } = useToast();
+  
+  // Form state
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [promoCode, setPromoCode] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  
+  // Stripe hooks
+  const stripe = useStripe();
+  const elements = useElements();
 
-  const isFormValid = formData.fullName &&
-                     formData.cardNumber && 
-                     formData.expiryDate && 
-                     formData.securityCode && 
-                     formData.acceptTerms;
+  const handlePayment = async () => {
+    if (!stripe || !elements) {
+      toast({
+        title: "Payment system not ready",
+        description: "Please try again in a moment",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const onSubmit = async () => {
-    if (!isFormValid) return;
-    onClose();
+    if (!acceptTerms) {
+      toast({
+        title: "Terms and conditions",
+        description: "Please accept the terms and conditions to continue",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Create a payment intent on the server
+      const response = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: total,
+          items: basket,
+          customerEmail: email,
+          customerName: fullName,
+          promoCode: promoCode || undefined
+        }),
+      });
+
+      const { clientSecret } = await response.json();
+
+      // Confirm the payment with the card element
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement)!,
+          billing_details: {
+            name: fullName,
+            email: email,
+          },
+        },
+      });
+
+      if (result.error) {
+        toast({
+          title: "Payment failed",
+          description: result.error.message,
+          variant: "destructive",
+        });
+      } else {
+        if (result.paymentIntent.status === "succeeded") {
+          toast({
+            title: "Payment successful!",
+            description: "Thank you for your order.",
+          });
+          setPaymentComplete(true);
+          clearBasket();
+          setTimeout(() => {
+            onClose();
+            setPaymentComplete(false);
+          }, 3000);
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={cn(
-        "sm:max-w-[900px]",
-        "w-[100vw] h-[100vh] sm:h-auto rounded-none sm:rounded-lg p-0",
-        "sm:max-h-[85vh] overflow-y-auto"
-      )}>
-        <div className="flex flex-col sm:flex-row h-full sm:h-auto">
-          {/* Payment Section */}
-          <div className="flex-1 p-4 sm:p-6">
-            <DialogHeader className="text-left mb-6">
-              <DialogTitle>Complete Your Payment</DialogTitle>
-            </DialogHeader>
+      <DialogContent className="sm:max-w-[900px] p-0 overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+          {/* Left side - Payment form */}
+          <div className="p-6 flex-1">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Complete Your Payment</h2>
+              <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                <X size={20} />
+              </button>
+            </div>
 
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input 
-                  id="fullName"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="h-12 sm:h-10 bg-[#F8F9FB]"
-                  placeholder="John Smith"
-                />
+            {paymentComplete ? (
+              <div className="text-center py-8">
+                <h3 className="text-xl font-semibold text-green-600 mb-2">
+                  Payment Successful!
+                </h3>
+                <p className="text-gray-600">
+                  Thank you for your order. You will receive a confirmation email shortly.
+                </p>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cardNumber">Card Number</Label>
-                <Input 
-                  id="cardNumber"
-                  value={formData.cardNumber}
-                  onChange={(e) => setFormData({...formData, cardNumber: e.target.value})}
-                  className="h-12 sm:h-10 bg-[#F8F9FB]"
-                  placeholder="4242 4242 4242 4242"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="expiry">Expiry Date</Label>
-                  <Input 
-                    id="expiry"
-                    value={formData.expiryDate}
-                    onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
-                    className="h-12 sm:h-10 bg-[#F8F9FB]"
-                    placeholder="MM/YY"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="security">Security Code</Label>
-                  <Input 
-                    id="security"
-                    value={formData.securityCode}
-                    onChange={(e) => setFormData({...formData, securityCode: e.target.value})}
-                    className="h-12 sm:h-10 bg-[#F8F9FB]"
-                    placeholder="123"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="promo">Promo Code (Optional)</Label>
-                <Input 
-                  id="promo"
-                  value={formData.promoCode}
-                  onChange={(e) => setFormData({...formData, promoCode: e.target.value})}
-                  className="h-12 sm:h-10 bg-[#F8F9FB]"
-                  placeholder="Enter promo code"
-                />
-              </div>
-
+            ) : (
               <div className="space-y-4">
-                <div className="flex items-center space-x-2">
+                <div>
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="John Smith"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="your@email.com"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="card" className="block text-sm font-medium text-gray-700 mb-1">
+                    Card Number
+                  </label>
+                  <div className="w-full p-3 border border-gray-300 rounded-md">
+                    <CardElement
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: '16px',
+                            color: '#424770',
+                            '::placeholder': {
+                              color: '#aab7c4',
+                            },
+                          },
+                          invalid: {
+                            color: '#9e2146',
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="promoCode" className="block text-sm font-medium text-gray-700 mb-1">
+                    Promo Code (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    id="promoCode"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="Enter promo code"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2 mt-4">
                   <Checkbox 
                     id="terms" 
-                    checked={formData.acceptTerms}
-                    onCheckedChange={(checked) => 
-                      setFormData({...formData, acceptTerms: checked as boolean})}
+                    checked={acceptTerms}
+                    onCheckedChange={(checked) => setAcceptTerms(checked === true)}
                   />
-                  <Label htmlFor="terms" className="text-sm">
+                  <label
+                    htmlFor="terms"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
                     I accept the terms and conditions
-                  </Label>
+                  </label>
                 </div>
 
-                <div className="hidden sm:block">
-                  <Button 
-                    onClick={onSubmit}
-                    disabled={!isFormValid}
-                    className="w-full h-10 bg-[#E54D2E] hover:bg-[#E54D2E]/90 text-white font-medium"
-                  >
-                    Pay £{total.toFixed(2)}
-                  </Button>
-                </div>
+                <Button
+                  onClick={handlePayment}
+                  disabled={!stripe || isProcessing || !fullName || !email}
+                  className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white"
+                  size="lg"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    `Pay £${total.toFixed(2)}`
+                  )}
+                </Button>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Order Summary Section */}
-          <div className="border-t sm:border-l sm:border-t-0 sm:w-[400px] bg-white">
-            <div className="p-4 sm:p-6">
-              <h3 className="font-semibold text-lg mb-4">Order Summary</h3>
-              <div className="space-y-3">
-                {basket.map((item) => (
-                  <div key={item.name} className="flex justify-between text-sm">
-                    <span>{item.quantity}x {item.name}</span>
-                    <span>£{((item.price || 0) * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-4 pt-4 border-t">
-                <div className="flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span>£{total.toFixed(2)}</span>
+          {/* Right side - Order summary */}
+          <div className="bg-gray-50 p-6 md:w-[300px]">
+            <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+            <div className="space-y-3 mb-4">
+              {basket.map((item) => (
+                <div key={item.name} className="flex justify-between">
+                  <span>
+                    {item.quantity}x {item.name}
+                  </span>
+                  <span>£{((item.price || 0) * item.quantity).toFixed(2)}</span>
                 </div>
-              </div>
+              ))}
             </div>
-
-            {/* Mobile-only payment button */}
-            <div className="block sm:hidden p-4 border-t">
-              <Button 
-                onClick={onSubmit}
-                disabled={!isFormValid}
-                className="w-full h-12 bg-[#E54D2E] hover:bg-[#E54D2E]/90 text-white font-medium"
-              >
-                Pay £{total.toFixed(2)}
-              </Button>
+            <div className="border-t pt-3 font-bold flex justify-between">
+              <span>Total</span>
+              <span>£{total.toFixed(2)}</span>
             </div>
           </div>
         </div>
